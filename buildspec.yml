@@ -29,9 +29,15 @@ phases:
 
   post_build:
     commands:
-      - echo Pushing Docker image
-      - docker push $REPOSITORY_URI:latest
-      - printf '[{"name":"myapp-container","imageUri":"%s"}]' $REPOSITORY_URI:latest > imagedefinitions.json
+      - |
+        if [ "$CODEBUILD_BUILD_SUCCEEDING" = "1" ]; then
+          echo Pushing Docker image
+          docker push $REPOSITORY_URI:latest
+          printf '[{"name":"myapp-container","imageUri":"%s"}]' $REPOSITORY_URI:latest > imagedefinitions.json
+        else
+          echo Build failed earlier, skipping push
+          exit 1
+        fi
 
 artifacts:
   files:
